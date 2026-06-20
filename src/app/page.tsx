@@ -87,7 +87,7 @@ export default function HomePage() {
 
           <Link
             href="/onboarding"
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-emerald-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-green-500/25 transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/30 focus:outline-none focus:ring-4 focus:ring-green-300"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-600 to-emerald-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-green-500/25 transition-all hover:scale-105 hover:shadow-xl hover:shadow-green-500/30 focus:outline-none focus:ring-4 focus:ring-green-300 motion-reduce:transition-none motion-reduce:hover:scale-100"
           >
             Get Started
             <svg
@@ -119,10 +119,11 @@ export default function HomePage() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="glass p-6 transition-all hover:scale-[1.02] hover:shadow-xl"
+                className="glass p-6 transition-all hover:scale-[1.02] hover:shadow-xl motion-reduce:transition-none motion-reduce:hover:scale-100"
               >
                 <div
                   className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.gradient} text-2xl shadow-md`}
+                  aria-hidden="true"
                 >
                   {feature.icon}
                 </div>

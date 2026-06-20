@@ -9,7 +9,10 @@ interface CarbonBudgetProps {
 
 export default function CarbonBudget({ budgetKg, usedKg }: CarbonBudgetProps) {
   const [animatedPercent, setAnimatedPercent] = useState(0);
-  const percent = Math.min((usedKg / budgetKg) * 100, 100);
+  // Guard against budgetKg=0 (would yield NaN/Infinity). Treat any usage as 100% in that case.
+  const rawPercent =
+    budgetKg > 0 ? (usedKg / budgetKg) * 100 : usedKg > 0 ? 100 : 0;
+  const percent = Math.min(rawPercent, 100);
 
   useEffect(() => {
     const timeout = setTimeout(() => setAnimatedPercent(percent), 50);
@@ -23,16 +26,18 @@ export default function CarbonBudget({ budgetKg, usedKg }: CarbonBudgetProps) {
         ? 'stroke-yellow-500'
         : 'stroke-red-500';
 
+  // Use -700 shades to meet WCAG AA contrast (>= 4.5:1) on white backgrounds.
   const textColor =
     percent < 60
-      ? 'text-green-600'
+      ? 'text-green-700'
       : percent < 90
-        ? 'text-yellow-600'
-        : 'text-red-600';
+        ? 'text-yellow-700'
+        : 'text-red-700';
 
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (animatedPercent / 100) * circumference;
+  const displayPercent = Math.round(percent);
 
   return (
     <div
@@ -41,7 +46,11 @@ export default function CarbonBudget({ budgetKg, usedKg }: CarbonBudgetProps) {
       aria-valuenow={usedKg}
       aria-valuemin={0}
       aria-valuemax={budgetKg}
+      aria-valuetext={`${displayPercent}% of daily budget used`}
       aria-label={`Carbon budget: ${usedKg.toFixed(1)} of ${budgetKg.toFixed(1)} kg used`}
+      data-testid="carbon-budget"
+      data-percent={displayPercent}
+      data-state={percent < 60 ? 'good' : percent < 90 ? 'warning' : 'over'}
     >
       <svg
         width="180"
@@ -75,7 +84,7 @@ export default function CarbonBudget({ budgetKg, usedKg }: CarbonBudgetProps) {
         <span className={`text-lg font-bold ${textColor}`}>
           {usedKg.toFixed(1)} / {budgetKg.toFixed(1)}
         </span>
-        <span className="text-xs text-gray-500">kg CO2</span>
+        <span className="text-xs text-gray-700">kg CO2</span>
       </div>
     </div>
   );

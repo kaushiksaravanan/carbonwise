@@ -1,12 +1,13 @@
 'use client';
 
+import { memo } from 'react';
 import { ChatMessage } from '@/types';
 
 interface ChatBubbleProps {
   message: ChatMessage;
 }
 
-export default function ChatBubble({ message }: ChatBubbleProps) {
+function ChatBubble({ message }: ChatBubbleProps) {
   const isUser = message.role === 'user';
   const time = new Date(message.timestamp).toLocaleTimeString([], {
     hour: '2-digit',
@@ -16,7 +17,7 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
   return (
     <div
       className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}
-      role="listitem"
+      role="article"
       aria-label={`${isUser ? 'You' : 'Assistant'} at ${time}`}
     >
       <div
@@ -44,3 +45,5 @@ export default function ChatBubble({ message }: ChatBubbleProps) {
     </div>
   );
 }
+
+export default memo(ChatBubble);

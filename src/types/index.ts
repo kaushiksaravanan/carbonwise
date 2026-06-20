@@ -8,12 +8,24 @@ export interface UserProfile {
   totalCO2Saved: number;
 }
 
+export const TRANSPORT_OPTIONS = ["car", "public", "bike", "walk", "mixed"] as const;
+export const DIET_OPTIONS = ["meat-heavy", "balanced", "vegetarian", "vegan"] as const;
+export const HOME_ENERGY_OPTIONS = ["high", "medium", "low"] as const;
+export const SHOPPING_OPTIONS = ["frequent", "moderate", "minimal"] as const;
+export const HOME_SIZE_OPTIONS = ["apartment", "small-house", "large-house"] as const;
+
+export type Transport = (typeof TRANSPORT_OPTIONS)[number];
+export type Diet = (typeof DIET_OPTIONS)[number];
+export type HomeEnergy = (typeof HOME_ENERGY_OPTIONS)[number];
+export type Shopping = (typeof SHOPPING_OPTIONS)[number];
+export type HomeSize = (typeof HOME_SIZE_OPTIONS)[number];
+
 export interface LifestyleData {
-  transport: "car" | "public" | "bike" | "walk" | "mixed";
-  diet: "meat-heavy" | "balanced" | "vegetarian" | "vegan";
-  homeEnergy: "high" | "medium" | "low";
-  shopping: "frequent" | "moderate" | "minimal";
-  homeSize: "apartment" | "small-house" | "large-house";
+  transport: Transport;
+  diet: Diet;
+  homeEnergy: HomeEnergy;
+  shopping: Shopping;
+  homeSize: HomeSize;
 }
 
 export interface CarbonEntry {

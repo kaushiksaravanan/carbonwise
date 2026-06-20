@@ -6,24 +6,27 @@ import {
   calculateWhatIf,
   formatCO2,
 } from "@/lib/carbon-calculator";
-import { LifestyleData, CarbonCategory } from "@/types";
+import {
+  LifestyleData,
+  CarbonCategory,
+  TRANSPORT_OPTIONS,
+  DIET_OPTIONS,
+  HOME_ENERGY_OPTIONS,
+  SHOPPING_OPTIONS,
+  HOME_SIZE_OPTIONS,
+} from "@/types";
 
-const VALID_TRANSPORT = ["car", "public", "bike", "walk", "mixed"];
-const VALID_DIET = ["meat-heavy", "balanced", "vegetarian", "vegan"];
-const VALID_ENERGY = ["high", "medium", "low"];
-const VALID_SHOPPING = ["frequent", "moderate", "minimal"];
-const VALID_HOME_SIZE = ["apartment", "small-house", "large-house"];
 const VALID_CATEGORIES: CarbonCategory[] = ["transport", "food", "energy", "shopping", "other"];
 
 function validateLifestyle(lifestyle: unknown): lifestyle is LifestyleData {
   if (!lifestyle || typeof lifestyle !== "object") return false;
   const l = lifestyle as Record<string, unknown>;
   return (
-    VALID_TRANSPORT.includes(l.transport as string) &&
-    VALID_DIET.includes(l.diet as string) &&
-    VALID_ENERGY.includes(l.homeEnergy as string) &&
-    VALID_SHOPPING.includes(l.shopping as string) &&
-    VALID_HOME_SIZE.includes(l.homeSize as string)
+    (TRANSPORT_OPTIONS as readonly string[]).includes(l.transport as string) &&
+    (DIET_OPTIONS as readonly string[]).includes(l.diet as string) &&
+    (HOME_ENERGY_OPTIONS as readonly string[]).includes(l.homeEnergy as string) &&
+    (SHOPPING_OPTIONS as readonly string[]).includes(l.shopping as string) &&
+    (HOME_SIZE_OPTIONS as readonly string[]).includes(l.homeSize as string)
   );
 }
 
@@ -67,7 +70,7 @@ export async function POST(request: NextRequest) {
     if (action === "baseline") {
       if (!validateLifestyle(data.lifestyle)) {
         return NextResponse.json(
-          { error: "Invalid lifestyle data", details: "Must include valid transport, diet, homeEnergy, shopping, and homeSize fields" },
+          { error: "Invalid lifestyle data" },
           { status: 400, headers: CORS_HEADERS }
         );
       }
@@ -87,7 +90,7 @@ export async function POST(request: NextRequest) {
 
       if (!category || !VALID_CATEGORIES.includes(category)) {
         return NextResponse.json(
-          { error: "Invalid category", details: `Must be one of: ${VALID_CATEGORIES.join(", ")}` },
+          { error: "Invalid category" },
           { status: 400, headers: CORS_HEADERS }
         );
       }
@@ -149,10 +152,17 @@ export async function POST(request: NextRequest) {
         { headers: CORS_HEADERS }
       );
     }
-  } catch (error) {
-    const details = error instanceof Error ? error.message : "Unknown error";
+
+    // Defensive fallback: should be unreachable given the action whitelist above,
+    // but guarantees the handler always returns a NextResponse.
     return NextResponse.json(
-      { error: "Calculation failed", details },
+      { error: "Unhandled action" },
+      { status: 500, headers: CORS_HEADERS }
+    );
+  } catch (error) {
+    console.error("[api/calculate] error:", error);
+    return NextResponse.json(
+      { error: "Internal error" },
       { status: 500, headers: CORS_HEADERS }
     );
   }

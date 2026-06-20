@@ -1,13 +1,45 @@
 import { UserProfile, CarbonEntry, DailyBudget, GardenState } from "@/types";
+import { calculateDailyBudget } from "./carbon-calculator";
 
 const STORAGE_KEY = "carbonwise_profile";
 const ENTRIES_KEY = "carbonwise_entries";
 const CHAT_KEY = "carbonwise_chat";
 
+// Safely parse JSON from localStorage. Returns the fallback when:
+// - the key is missing
+// - the stored payload is malformed JSON
+// - the parsed value contains a `__proto__` or `constructor` key (basic
+//   prototype-pollution guard)
+// On parse failure the corrupted key is cleared so subsequent reads
+// don't keep throwing/returning fallbacks for the same bad payload.
+function safeParse<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  const data = localStorage.getItem(key);
+  if (data === null) return fallback;
+  try {
+    const parsed = JSON.parse(data, (k, v) => {
+      if (k === "__proto__" || k === "constructor") return undefined;
+      return v;
+    });
+    if (parsed === null || parsed === undefined) return fallback;
+    return parsed as T;
+  } catch {
+    // Corrupted/tampered payload — clear it so we don't keep tripping over it.
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // ignore — storage may be unavailable
+    }
+    return fallback;
+  }
+}
+
 export function getProfile(): UserProfile | null {
   if (typeof window === "undefined") return null;
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : null;
+  const parsed = safeParse<UserProfile | null>(STORAGE_KEY, null);
+  // Reject non-object payloads (e.g. localStorage holding `"string"` or `42`)
+  if (!parsed || typeof parsed !== "object") return null;
+  return parsed;
 }
 
 export function saveProfile(profile: UserProfile): void {
@@ -16,8 +48,9 @@ export function saveProfile(profile: UserProfile): void {
 
 export function getEntries(): CarbonEntry[] {
   if (typeof window === "undefined") return [];
-  const data = localStorage.getItem(ENTRIES_KEY);
-  return data ? JSON.parse(data) : [];
+  const parsed = safeParse<CarbonEntry[]>(ENTRIES_KEY, []);
+  if (!Array.isArray(parsed)) return [];
+  return parsed;
 }
 
 export function addEntry(entry: CarbonEntry): void {
@@ -31,7 +64,6 @@ export function getTodayBudget(profile: UserProfile): DailyBudget {
   const entries = getEntries().filter((e) => e.date === today);
   const usedKg = entries.reduce((sum, e) => sum + (e.isReduction ? -e.co2Kg : e.co2Kg), 0);
 
-  const { calculateDailyBudget } = require("./carbon-calculator");
   const budgetKg = calculateDailyBudget(profile.lifestyle);
 
   return { date: today, budgetKg, usedKg: Math.max(0, usedKg), entries };
@@ -64,13 +96,14 @@ export function updateGarden(profile: UserProfile): GardenState {
   return garden;
 }
 
-export function getChatHistory(): Array<{ role: string; content: string }> {
+export function getChatHistory(): Array<{ role: string; content: string; timestamp?: string }> {
   if (typeof window === "undefined") return [];
-  const data = localStorage.getItem(CHAT_KEY);
-  return data ? JSON.parse(data) : [];
+  const parsed = safeParse<Array<{ role: string; content: string; timestamp?: string }>>(CHAT_KEY, []);
+  if (!Array.isArray(parsed)) return [];
+  return parsed;
 }
 
-export function saveChatHistory(messages: Array<{ role: string; content: string }>): void {
+export function saveChatHistory(messages: Array<{ role: string; content: string; timestamp?: string }>): void {
   // Keep last 50 messages to avoid localStorage bloat
   const trimmed = messages.slice(-50);
   localStorage.setItem(CHAT_KEY, JSON.stringify(trimmed));

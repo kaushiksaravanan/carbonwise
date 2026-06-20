@@ -1,4 +1,4 @@
-import { LifestyleData, CarbonCategory, CarbonEntry, DailyBudget } from "@/types";
+import { LifestyleData, CarbonCategory } from "@/types";
 
 // Emission factors in kg CO2e per unit (sourced from EPA, DEFRA, and IPCC)
 const EMISSION_FACTORS = {
@@ -27,6 +27,38 @@ const EMISSION_FACTORS = {
   },
 } as const;
 
+// Per-activity emission factors used by calculateActivityEmission.
+// NOTE: units differ per row — see the comment next to each group. These intentionally
+// have a finer granularity than EMISSION_FACTORS above (which models whole-day lifestyle
+// averages). Keep both tables in sync when adjusting shared rates (e.g. transport.car
+// vs drive-car are both per-km and should match).
+const ACTIVITY_FACTORS: Record<string, number> = {
+  // Transport — kg CO2 per km
+  "drive-car": 0.21,
+  "take-bus": 0.089,
+  "take-train": 0.041,
+  "ride-bike": 0.0,
+  "walk": 0.0,
+  "fly-domestic": 0.255,
+  "fly-international": 0.195,
+  // Food — kg CO2 per meal
+  "meal-beef": 6.6,
+  "meal-chicken": 2.3,
+  "meal-fish": 1.8,
+  "meal-vegetarian": 1.0,
+  "meal-vegan": 0.7,
+  // Energy — kg CO2 per hour
+  "heating": 1.5,
+  "cooling": 1.2,
+  "electronics": 0.05,
+  "laundry": 0.6,
+  // Shopping — kg CO2 per item
+  "clothing-new": 8.0,
+  "clothing-secondhand": 0.5,
+  "electronics-new": 50.0,
+  "groceries": 0.8,
+} as const;
+
 // Average daily CO2 per person globally: ~13.1 kg (World Bank 2023 data for India: ~5.2 kg)
 const GLOBAL_AVERAGE_DAILY_KG = 13.1;
 const INDIA_AVERAGE_DAILY_KG = 5.2;
@@ -51,34 +83,7 @@ export function calculateActivityEmission(
   activity: string,
   quantity: number
 ): number {
-  const factors: Record<string, number> = {
-    // Transport (per km)
-    "drive-car": 0.21,
-    "take-bus": 0.089,
-    "take-train": 0.041,
-    "ride-bike": 0.0,
-    "walk": 0.0,
-    "fly-domestic": 0.255,
-    "fly-international": 0.195,
-    // Food (per meal)
-    "meal-beef": 6.6,
-    "meal-chicken": 2.3,
-    "meal-fish": 1.8,
-    "meal-vegetarian": 1.0,
-    "meal-vegan": 0.7,
-    // Energy (per hour)
-    "heating": 1.5,
-    "cooling": 1.2,
-    "electronics": 0.05,
-    "laundry": 0.6,
-    // Shopping (per item)
-    "clothing-new": 8.0,
-    "clothing-secondhand": 0.5,
-    "electronics-new": 50.0,
-    "groceries": 0.8,
-  };
-
-  const factor = factors[activity] ?? 1.0;
+  const factor = ACTIVITY_FACTORS[activity] ?? 1.0;
   return Math.round(factor * quantity * 100) / 100;
 }
 
