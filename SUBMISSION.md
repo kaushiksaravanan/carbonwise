@@ -37,13 +37,14 @@ For each criterion, briefly explain how the project addresses it:
 ### Efficiency (Medium Impact)
 - Lottie animations are tiny inline JSON
 - Static page generation where possible
-- Bundle size optimized (~177KB First Load JS for landing)
+- Bundle size optimized (~98KB First Load JS for landing — 44% reduction after audit)
 - LRU key rotation for AI prevents bottlenecks
 
 ### Testing (Medium Impact)
-- 53 unit tests covering core calculations and storage
-- Edge cases: zero emissions, unknown activities, empty states
-- Integration test of API calculation logic
+- 86 unit and component tests (5 test files, all passing)
+- Component tests for CarbonBudget and OnboardingQuiz with React Testing Library
+- Edge cases: zero emissions, unknown activities, empty states, malformed localStorage
+- Integration tests of API calculation logic
 
 ### Accessibility (Low Impact)
 - WCAG 2.1 AA compliant
