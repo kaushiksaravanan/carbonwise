@@ -8,7 +8,7 @@
 
 ## Live Demo
 
-[Deployed Link](https://carbonwise.vercel.app)
+[Deployed Link](https://carbonwise-mu.vercel.app)
 
 ## Approach & Logic
 
