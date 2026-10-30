@@ -109,7 +109,7 @@ export async function chatWithGemini(
     try {
       response = await fetch(
         // API key in header (not URL) so it can't leak via URL echoes / logs.
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
         {
           method: "POST",
           headers: {

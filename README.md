@@ -28,7 +28,7 @@ npm run dev
 
 Open http://localhost:3000. The local calculation and storage code can be explored without AI credentials. Chat, AI scenario parsing, and AI insights require a working CipherStack service and a valid `CIPHERSTACK_TOKEN`. Configure the service URL with `CIPHERSTACK_URL`; the example points to the author's service and does not grant access to it.
 
-The server requests a Gemini key from CipherStack and calls Google. The current implementation uses `gemini-2.0-flash`; provider availability is not verified by the local tests. Live provider calls can incur charges.
+The server requests a Gemini key from CipherStack and calls Google. The implementation uses `gemini-3.5-flash-lite`, listed in [Google's model documentation](https://ai.google.dev/gemini-api/docs/models). Live provider behavior and account access are not verified by the local tests. Provider calls can incur charges.
 
 ## Verify
 
