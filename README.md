@@ -2,7 +2,7 @@
 
 CarbonWise is a hackathon prototype for tracking estimated personal carbon emissions. A lifestyle quiz creates an initial budget. Users can log activities, compare scenarios, and view a garden that changes with their progress. An optional Gemini coach uses their profile and recent activity for context.
 
-[Hosted demo](https://carbonwise-mu.vercel.app) ? the hosted version may differ from this repository.
+[Hosted demo](https://carbonwise-mu.vercel.app). The hosted version may differ from this repository.
 
 ## What is implemented
 
@@ -16,7 +16,7 @@ The app uses Next.js 15, React 18, TypeScript, Tailwind CSS, and Vitest. It is a
 
 ## Run locally
 
-Use Node.js 22.13 or newer and npm.
+Use Node.js 22 LTS (22.13 or newer in the 22.x release line) and npm.
 
 ```bash
 git clone https://github.com/kaushiksaravanan/carbonwise.git
@@ -64,6 +64,6 @@ Carbon estimates are for exploration and depend on the assumptions in the calcul
 
 ## License
 
-MIT ? see [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
 
 Built for the PromptWars Hackathon.
